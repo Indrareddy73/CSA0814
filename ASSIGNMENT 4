@@ -1,1 +1,40 @@
+class InvalidRecord(Exception):
+    pass
 
+
+def validate_record(line):
+    parts = [part.strip() for part in line.rstrip("\n").split(",")]
+
+    if len(parts) != 5:
+        raise InvalidRecord(
+            f"Expected 5 fields, found {len(parts)}"
+        )
+
+    reg, name, department, email, event_text = parts
+
+    if not reg or not name or not department:
+        raise InvalidRecord(
+            "Register, name and department are required"
+        )
+
+    if email.count("@") != 1:
+        raise InvalidRecord("Invalid email: exactly one @ is required")
+
+    local, domain = email.split("@")
+
+    if not local or "." not in domain or domain.startswith(".") or domain.endswith("."):
+        raise InvalidRecord("Invalid email format")
+
+    events = [
+        event.strip()
+        for event in event_text.split(";")
+        if event.strip()
+    ]
+
+    return {
+        "register": reg,
+        "name": name,
+        "department": department,
+        "email": email,
+        "events": events
+    }
